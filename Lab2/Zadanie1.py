@@ -1,4 +1,7 @@
 from enum import Enum
+import numpy
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
 
 
 class ColorModel(Enum):
@@ -8,14 +11,16 @@ class ColorModel(Enum):
     hsl = 3
     gray = 4  # obraz 2d
 
+
 class BaseImage:
-    data: np.ndarray  # tensor przechowujacy piksele obrazu
+    data: numpy.ndarray  # tensor przechowujacy piksele obrazu
     color_model: ColorModel  # atrybut przechowujacy biezacy model barw obrazu
 
     def __init__(self, path: str) -> None:
         """
         inicjalizator wczytujacy obraz do atrybutu data na podstawie sciezki
         """
+        self.data = plt.imread(path)
         pass
 
     def save_img(self, path: str) -> None:
@@ -63,3 +68,8 @@ class BaseImage:
         metoda zwraca nowy obiekt klasy image zawierajacy obraz w docelowym modelu barw
         """
         pass
+
+
+image = BaseImage("0.jpg")
+plt.imshow(image)
+plt.show()
