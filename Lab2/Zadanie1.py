@@ -2,6 +2,7 @@ from enum import Enum
 import numpy
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+from matplotlib.image import imread
 
 
 class ColorModel(Enum):
