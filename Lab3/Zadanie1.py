@@ -161,9 +161,9 @@ class BaseImage:
                     H = pixel[0]
                     S = pixel[1]
                     V = pixel[2]
-                    M = 255*V
-                    m = M*(1-S)
-                    z = (M-m)*(1-abs(((H/60) % 2)-1))
+                    M = 255 * V
+                    m = M * (1 - S)
+                    z = (M - m) * (1 - abs(((H / 60) % 2) - 1))
                     if 0 <= H < 60:
                         R = M
                         G = z + m
@@ -202,29 +202,29 @@ class BaseImage:
                     S = pixel[1]
                     I = pixel[2]
                     if H == 0:
-                        R = I + 2*I*S
-                        G = I - I*S
-                        B = I - I*S
+                        R = I + 2 * I * S
+                        G = I - I * S
+                        B = I - I * S
                     if 0 < H < 120:
-                        R = I + I*S*math.cos(H)/math.cos(60-H)
-                        G = I + I*S*(1-math.cos(H)/math.cos(60-H))
-                        B = I - I*S
+                        R = I + I * S * math.cos(H) / math.cos(60 - H)
+                        G = I + I * S * (1 - math.cos(H) / math.cos(60 - H))
+                        B = I - I * S
                     if H == 120:
-                        R = I - I*S
-                        G = I + 2*I*S
-                        B = I - I*S
+                        R = I - I * S
+                        G = I + 2 * I * S
+                        B = I - I * S
                     if 120 < H < 240:
-                        R = I - I*S
-                        G = I + I*S*math.cos(H-120)/math.cos(180-H)
-                        B = I + I*S*(1-math.cos(H-120)/math.cos(180-H))
+                        R = I - I * S
+                        G = I + I * S * math.cos(H - 120) / math.cos(180 - H)
+                        B = I + I * S * (1 - math.cos(H - 120) / math.cos(180 - H))
                     if H == 240:
-                        R = I - I*S
-                        G = I - I*S
-                        B = I + 2*I*S
+                        R = I - I * S
+                        G = I - I * S
+                        B = I + 2 * I * S
                     if 240 < H < 360:
-                        R = I + I*S(1-math.cos(H-240)/math.cos(300-H))
-                        G = I - I*S
-                        B = I + I*S*math.cos(H-240)/math.cos(300-H)
+                        R = I + I * S(1 - math.cos(H - 240) / math.cos(300 - H))
+                        G = I - I * S
+                        B = I + I * S * math.cos(H - 240) / math.cos(300 - H)
                     pixel = [R, G, B]
                     new_row.append(pixel)
                 new_array.append(new_row)
@@ -279,3 +279,43 @@ image = BaseImage("4.2.06.tiff")
 
 
 plt.show()
+
+class GrayScaleTransform(BaseImage):
+
+    def __init__(self) -> None:
+        pass
+
+    def to_gray(self) -> BaseImage:
+        """
+        metoda zwracajaca obraz w skali szarosci jako obiekt klasy BaseImage
+        """
+        inputImage = self.data
+
+        grayImage = np.zeros(inputImage.shape, dtype=int)
+        R = np.array(inputImage.data[:, :, 0])
+        G = np.array(inputImage.data[:, :, 1])
+        B = np.array(inputImage.data[:, :, 2])
+
+        average = (R+G+B)
+
+        for i in range(3):
+            grayImage[:, :, i] = average
+
+        return self
+
+    def to_sepia(self, alpha_beta: tuple = (None, None), w: int = None) -> BaseImage:
+        """
+        metoda zwracajaca obraz w sepii jako obiekt klasy BaseImage
+        sepia tworzona metoda 1 w przypadku przekazania argumentu alpha_beta
+        lub metoda 2 w przypadku przekazania argumentu w
+        """
+        pass
+
+class Image(GrayScaleTransform):
+    """
+    klasa stanowiaca glowny interfejs biblioteki
+    w pozniejszym czasie bedzie dziedziczyla po kolejnych klasach
+    realizujacych kolejne metody przetwarzania obrazow
+    """
+    def __init__(self) -> None:
+        pass
