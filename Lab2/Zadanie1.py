@@ -279,3 +279,43 @@ image = BaseImage("4.2.06.tiff")
 
 
 plt.show()
+
+class GrayScaleTransform(BaseImage):
+
+    def __init__(self) -> None:
+        pass
+
+    def to_gray(self) -> BaseImage:
+        """
+        metoda zwracajaca obraz w skali szarosci jako obiekt klasy BaseImage
+        """
+        inputImage = self.data
+
+        grayImage = np.zeros(inputImage.shape, dtype=int)
+        R = np.array(inputImage.data[:, :, 0])
+        G = np.array(inputImage.data[:, :, 1])
+        B = np.array(inputImage.data[:, :, 2])
+
+        average = (R+G+B)
+
+        for i in range(3):
+            grayImage[:, :, i] = average
+
+        return self
+
+    def to_sepia(self, alpha_beta: tuple = (None, None), w: int = None) -> BaseImage:
+        """
+        metoda zwracajaca obraz w sepii jako obiekt klasy BaseImage
+        sepia tworzona metoda 1 w przypadku przekazania argumentu alpha_beta
+        lub metoda 2 w przypadku przekazania argumentu w
+        """
+        pass
+
+class Image(GrayScaleTransform):
+    """
+    klasa stanowiaca glowny interfejs biblioteki
+    w pozniejszym czasie bedzie dziedziczyla po kolejnych klasach
+    realizujacych kolejne metody przetwarzania obrazow
+    """
+    def __init__(self) -> None:
+        pass
