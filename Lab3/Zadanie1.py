@@ -2,7 +2,6 @@ from enum import Enum
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.image import imread
-from matplotlib.pyplot import imshow
 from matplotlib.image import imsave
 import math
 from matplotlib.colors import hsv_to_rgb
@@ -36,7 +35,8 @@ class BaseImage:
         """
         metoda wyswietlajaca obraz znajdujacy sie w atrybucie data
         """
-        imshow(self.data)
+        plt.imshow(self.data)
+        plt.show()
 
     def get_layer(self, layer_id: int) -> 'BaseImage':
         """
@@ -272,18 +272,11 @@ class BaseImage:
             return self
 
 
-image = BaseImage("4.2.06.tiff")
-# plt.imshow(image.data)
-# image.show_img()
-# image.get_layer(0).show_img()
-
-
-plt.show()
-
 class GrayScaleTransform(BaseImage):
 
-    def __init__(self) -> None:
-        pass
+
+    """def __init__(self) -> None:
+        pass"""
 
     def to_gray(self) -> BaseImage:
         """
@@ -291,25 +284,73 @@ class GrayScaleTransform(BaseImage):
         """
         inputImage = self.data
 
-        grayImage = np.zeros(inputImage.shape, dtype=int)
-        R = np.array(inputImage.data[:, :, 0])
-        G = np.array(inputImage.data[:, :, 1])
-        B = np.array(inputImage.data[:, :, 2])
+        grayImage = np.zeros(inputImage.shape, dtype=float)
+        R = np.array(inputImage[:, :, 0])*0.229
+        G = np.array(inputImage[:, :, 1])*0.587
+        B = np.array(inputImage[:, :, 2])*0.114
 
         average = (R+G+B)
 
         for i in range(3):
             grayImage[:, :, i] = average
 
+        self.data = grayImage
+
         return self
 
-    def to_sepia(self, alpha_beta: tuple = (None, None), w: int = None) -> BaseImage:
+    def to_sepia(self, alpha_beta: tuple = None, w: int = None) -> BaseImage:
         """
         metoda zwracajaca obraz w sepii jako obiekt klasy BaseImage
         sepia tworzona metoda 1 w przypadku przekazania argumentu alpha_beta
         lub metoda 2 w przypadku przekazania argumentu w
         """
-        pass
+
+        temp = self.data
+
+        if alpha_beta is not None:
+            alpha = alpha_beta[0]
+            beta = alpha_beta[1]
+            if alpha > 1 and beta < 1 and alpha + beta == 2:
+                self.to_gray()
+                """L0 = temp[:, :, 0]
+                L1 = temp[:, :, 1]
+                L2 = temp[:, :, 2]"""
+                new_array = []
+                for row in self.data:
+                    new_row = []
+                    for pixel in row:
+                        L0 = float(pixel[0])
+                        L1 = float(pixel[1])
+                        L2 = float(pixel[2])
+                        L0 = L0 * alpha
+                        L2 = L2 * beta
+                        pixel = [L0, L1, L2]
+                        new_row.append(pixel)
+                    new_array.append(new_row)
+                self.data = np.asarray(new_array)
+        if w is not None:
+            if w >= 20 and w <= 40:
+                self.to_gray()
+                new_array = []
+                for row in self.data:
+                    new_row = []
+                    for pixel in row:
+                        L0 = pixel[0] * 255
+                        L1 = pixel[1] * 255
+                        L2 = pixel[2] * 255
+                        L0 = L0 + 2 * w
+                        L1 = L1 + w
+                        if L0 > 255:
+                            L0 = 255
+                        if L1 > 255:
+                            L1 = 255
+                        pixel = [int(L0), int(L1), int(L2)]
+                        new_row.append(pixel)
+                    new_array.append(new_row)
+                self.data = np.asarray(new_array)
+                print(self.data)
+
+        return self
 
 class Image(GrayScaleTransform):
     """
@@ -317,5 +358,54 @@ class Image(GrayScaleTransform):
     w pozniejszym czasie bedzie dziedziczyla po kolejnych klasach
     realizujacych kolejne metody przetwarzania obrazow
     """
+    """
     def __init__(self) -> None:
         pass
+    """
+
+class Histogram:
+    """
+    klasa reprezentujaca histogram danego obrazu
+    """
+    values: np.ndarray  # atrybut przechowujacy wartosci histogramu danego obrazu
+
+    def __init__(self, values: np.ndarray) -> None:
+        values = plt.imread()
+
+    def plot(self) -> None:
+        """
+        metoda wyswietlajaca histogram na podstawie atrybutu values
+        """
+        pass
+
+class ImageDiffMethod(Enum):
+    mse = 0
+    rmse = 1
+
+class ImageComparison(BaseImage):
+    """
+    Klasa reprezentujaca obraz, jego histogram oraz metody porównania
+    """
+
+    def histogram(self) -> Histogram:
+        """
+        metoda zwracajaca obiekt zawierajacy histogram biezacego obrazu (1- lub wielowarstwowy)
+        """
+        pass
+
+    def compare_to(self, other: Image, method: ImageDiffMethod) -> float:
+        """
+        metoda zwracajaca mse lub rmse dla dwoch obrazow
+        """
+        pass
+class Image(GrayScaleTransform, ImageComparison):
+    pass
+
+"""image = BaseImage("4.2.06.tiff")
+# plt.imshow(image.data)
+# image.show_img()
+image.get_layer(0).show_img()"""
+
+image = GrayScaleTransform("Lenna.png")
+image.to_sepia(w=20)
+image.show_img()
