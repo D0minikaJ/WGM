@@ -63,11 +63,9 @@ class BaseImage:
                 if math.sqrt(float(R * R + G * G + B * B - R * G - R * B - G * B)) == 0.0:
                     H = 0
                 elif G >= B:
-                    H = int(math.acos(
-                        (R - 0.5 * G - 0.5 * B) / (math.sqrt(float(R * R + G * G + B * B - R * G - R * B - G * B)))))
+                    H = int(math.acos((R - 0.5 * G - 0.5 * B) / (math.sqrt(float(R * R + G * G + B * B - R * G - R * B - G * B)))))
                 else:
-                    H = int(360 - math.acos(
-                        (R - 0.5 * G - 0.5 * B) / (math.sqrt(float(R * R + G * G + B * B - R * G - R * B - G * B)))))
+                    H = int(360 - math.acos((R - 0.5 * G - 0.5 * B) / (math.sqrt(float(R * R + G * G + B * B - R * G - R * B - G * B)))))
                 M = np.amax(row)
                 m = np.amin(row)
                 V = M / 255  # B
@@ -112,6 +110,7 @@ class BaseImage:
                 new_row.append(pixel)
             new_array.append(new_row)
         self.data = np.asarray(new_array)
+        print(self.data)
         return self
 
     def to_hsl(self) -> 'BaseImage':
@@ -401,11 +400,11 @@ class ImageComparison(BaseImage):
 class Image(GrayScaleTransform, ImageComparison):
     pass
 
-"""image = BaseImage("4.2.06.tiff")
-# plt.imshow(image.data)
+image = BaseImage("Lenna.png")
+image.to_hsi().show_img()
 # image.show_img()
-image.get_layer(0).show_img()"""
+#image.get_layer(0).show_img()
 
-image = GrayScaleTransform("Lenna.png")
+"""image = GrayScaleTransform("Lenna.png")
 image.to_sepia(w=20)
-image.show_img()
+image.show_img()"""
