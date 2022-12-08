@@ -302,7 +302,6 @@ class GrayScaleTransform(BaseImage):
             grayImage[:, :, i] = average
 
         self.data = grayImage
-
         return self
 
     def to_sepia(self, alpha_beta: tuple = None, w: int = None) -> BaseImage:
@@ -319,9 +318,6 @@ class GrayScaleTransform(BaseImage):
             beta = alpha_beta[1]
             if alpha > 1 and beta < 1 and alpha + beta == 2:
                 self.to_gray()
-                """L0 = temp[:, :, 0]
-                L1 = temp[:, :, 1]
-                L2 = temp[:, :, 2]"""
                 new_array = []
                 for row in self.data:
                     new_row = []
@@ -376,20 +372,22 @@ class Histogram:
     values: np.ndarray  # atrybut przechowujacy wartosci histogramu danego obrazu
 
     def __init__(self, values: np.ndarray) -> None:
-        values = BaseImage(self.data)
+        #values = BaseImage(self.data)
+        self.values = values
 
     def plot(self) -> None:
+    
         """
         metoda wyswietlajaca histogram na podstawie atrybutu values
         """
-        R = np.array(self.values[:, :, 0])
-        G = np.array(self.values[:, :, 1])
-        B = np.array(self.values[:, :, 2])
-
-        plt.plot(R, np.arange(1, 257))
-        plt.plot(G, np.arange(1, 257))
-        plt.plot(B, np.arange(1, 257))
-
+        if len(self.values.shape) == 0:
+            plt.figure()
+            plt.plot(self.values, 'gray')
+        else:
+            plt.figure()
+            plt.plot(self.values[0], 'r')
+            plt.plot(self.values[1], 'g')
+            plt.plot(self.values[2], 'b')
         plt.show()
 
 
@@ -407,29 +405,50 @@ class ImageComparison(BaseImage):
         """
         metoda zwracajaca obiekt zawierajacy histogram biezacego obrazu (1- lub wielowarstwowy)
         """
+        r = 0
+        g = 0
+        b = 0
+        new_array = []
+        for row in self.data:
+            new_row = []
+            for pixel in row:
+                r = int(pixel[0])
+                g = int(pixel[1])
+                b = int(pixel[2])
+                if r != g != b:
+                    greyscale = True
+                else:
+                    greyscale = False
 
-        pass
+        if greyscale is True:
+            gray, bin_edges = np.histogram(self.data, bins=256, range=(0, 1))
+            return Histogram(gray)
+        else:
+            red, bins = np.histogram(self.data[:, :, 0], bins=256, range=(0, 256))
+            green, bins = np.histogram(self.data[:, :, 1], bins=256, range=(0, 256))
+            blue, bins = np.histogram(self.data[:, :, 2], bins=256, range=(0, 256))
+            print(red)
+            rgb = np.vstack((red, blue, green))
+            return Histogram(rgb)
 
     def compare_to(self, other: Image, method: ImageDiffMethod) -> float:
         """
         metoda zwracajaca mse lub rmse dla dwoch obrazow
         """
         n = 256
-        compare_to_image = self.data.copy()
-        compare_histogram = compare_to_image.histogram()
-        other = other.to_gray()
+        this_histogram = self.histogram()
         other_histogram = other.histogram()
 
         if method == 1:
             mse = 0
             for i in range(n):
-                mse = (i.compare_histogram - i.other_histogram) ** 2  # histogram zamiast image i other
+                mse = (i.this_histogram - i.other_histogram) ** 2  # histogram zamiast image i other
             mse = mse / n
             return mse
         if method == 2:
             rmse = 0
             for i in range(n):
-                rmse = (i.compare_histogram - i.other_histogram) ** 2
+                rmse = (i.this_histogram - i.other_histogram) ** 2
             rmse /= n
             return math.sqrt(rmse)
 
@@ -444,6 +463,9 @@ class ImageComparison(BaseImage):
         for i in range(size):
             hs[i] = h[i] + hs[i - 1]
         return hs
+
+image = ImageComparison("Lenna_(test_image).png")
+image.histogram().plot()
 
 
 class ImageAligning(BaseImage):
@@ -487,6 +509,6 @@ class Image(GrayScaleTransform, ImageComparison, ImageAligning):
 # image.show_img()
 image.get_layer(0).show_img()"""
 
-image = GrayScaleTransform("Lenna_(test_image).png")
-image.to_sepia(w=20)
-image.show_img()
+#image = GrayScaleTransform("Lenna_(test_image).png")
+#image.to_sepia(w=20)
+#image.to_gray()
